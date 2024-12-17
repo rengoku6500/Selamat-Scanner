@@ -3,7 +3,7 @@
 ![Screenshot of the tool](main.png)
 ## Overview
 
-As a penetration tester, one of the biggest challenges when testing client or customer websites is ensuring that the vulnerability scanners do not cause any harm. Traditional scanners may use harmful payloads, or they could get blocked by Web Application Firewalls (WAFs) or other security mechanisms. For now, Selamat can only scan GET parameter
+As a penetration tester, one of the biggest challenges when testing client or customer websites is ensuring that the vulnerability scanners do not cause any harm. Traditional scanners may use harmful payloads, or they could get blocked by Web Application Firewalls (WAFs) or other security mechanisms.
 
 ***Selamat*** solves these problems by providing an automated vulnerability scanner that can detect common web vulnerabilities without using any harmful payloads. This tool helps identify potential security issues while ensuring the safety of the target website and avoiding detection by most firewalls.
 
@@ -41,6 +41,7 @@ As a penetration tester, one of the biggest challenges when testing client or cu
 
 - **Not Suitable for Beginners:** To effectively use this tool, you should understand the basic concepts behind vulnerabilities like SQL injection and XSS. A basic knowledge of web application security is required.
 - **Manual Testing After Detection:** While this tool can identify potential vulnerabilities, **manual verification** and further testing are still necessary after detection. SafeScanner automates the discovery process, but you must conduct a manual review for final confirmation.
+-  **Get Parameter:** For now, Selamat can only scan GET parameter
 
 ## How to Use
 
