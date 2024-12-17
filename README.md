@@ -46,8 +46,8 @@ As a penetration tester, one of the biggest challenges when testing client or cu
 
 1. **Clone the Repository:**
    ```bash
-   git clone https://github.com/yourusername/safescanner.git
-   cd safescanner
+   git clone https://github.com/rengoku6500/Selamat-Scanner.git 
+   cd Selamat-Scanner
    ```
 
 2. **Install Dependencies:**
