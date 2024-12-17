@@ -7,7 +7,7 @@ As a penetration tester, one of the biggest challenges when testing client or cu
 
 ***Selamat*** solves these problems by providing an automated vulnerability scanner that can detect common web vulnerabilities without using any harmful payloads. This tool helps identify potential security issues while ensuring the safety of the target website and avoiding detection by most firewalls.
 
-> **Note:** This tool was made with the help of ChatGPT
+
 
 ## Features
 
@@ -56,9 +56,9 @@ As a penetration tester, one of the biggest challenges when testing client or cu
    ```bash
    pip install coloroma
    pip install requests
-   golang
    go install github.com/tomnomnom/waybackurls@latest
-   python
+   python(can be installed at https://www.python.org/)
+   golang(can be installed at https://go.dev/)
    ```
 
 3. **Run the Tool:**
