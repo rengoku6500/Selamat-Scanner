@@ -6,6 +6,8 @@ As a penetration tester, one of the biggest challenges when testing client or cu
 
 ***Selamat*** solves these problems by providing an automated vulnerability scanner that can detect common web vulnerabilities without using any harmful payloads. This tool helps identify potential security issues while ensuring the safety of the target website and avoiding detection by most firewalls.
 
+> **Note:** This tool was made with the help of ChatGPT
+
 ## Features
 
 ### 1. **Wayback URL Crawling**
