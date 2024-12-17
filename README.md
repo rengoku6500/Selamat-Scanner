@@ -16,7 +16,7 @@ As a penetration tester, one of the biggest challenges when testing client or cu
      
    This feature helps gather information without the risk of getting blocked or causing undue stress on the website.
 
-### 2. **SQL Injection Detection with Minimal Payload**
+### 2. **SQL Injection Detection**
    - Traditional SQLi scanners use harmful payloads, which can result in unintended effects. SafeScanner minimizes this risk by detecting SQL injection vulnerabilities with just a **single apostrophe (`'`)**.
    - **How It Works:**
      - The tool inserts a single apostrophe and a double apostrophe into the input fields and checks for unusual website responses.
