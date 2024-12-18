@@ -58,7 +58,7 @@ def run_commands():
         print(Fore.RED + "No output saved to results/urlWithParam.txt.")
 
 def modify_url(url, word_to_add):
-    """Modify the URL by appending 'RENGOKU' to each parameter's value."""
+    """Modify the URL by appending 'RENGOKU<>' to each parameter's value."""
     parsed_url = urlparse(url)
     query_params = parse_qs(parsed_url.query)
     
@@ -83,7 +83,8 @@ def check_reflected_word(url, word_to_check):
 def main():
     """Main function to run the script."""
     clear_terminal()  # Clear terminal before starting
-    reflected_urls = []
+    reflected_urls_word = []
+    reflected_urls_symbol = []
 
     try:
         # Ask user if they want to use a custom file
@@ -110,8 +111,9 @@ def main():
         total_urls = len(urls)
         print(Fore.YELLOW + f"Total URLs with parameters to process: {total_urls}")
         
-        word_to_add = "RENGOKU"
-        word_to_check = "RENGOKU"
+        word_to_add = "RENGOKU<>"
+        word_to_check_word = "RENGOKU"
+        word_to_check_symbol = "RENGOKU<>"
 
         for idx, url in enumerate(urls, start=1):
             url = url.strip()
@@ -121,25 +123,35 @@ def main():
             progress = (idx / total_urls) * 100
             print(Fore.BLUE + f"Processing URL {idx}/{total_urls} - Progress: {progress:.2f}%")
 
-            if check_reflected_word(modified_url, word_to_check):
-                reflected_urls.append(modified_url)
-                print(Fore.GREEN + f"Reflected URL: {modified_url}")
+            if check_reflected_word(modified_url, word_to_check_word):
+                reflected_urls_word.append(modified_url)
+                print(Fore.GREEN + f"Reflected URL (word): {modified_url}")
+
+            if check_reflected_word(modified_url, word_to_check_symbol):
+                reflected_urls_symbol.append(modified_url)
+                print(Fore.GREEN + f"Reflected URL (symbol): {modified_url}")
 
     except KeyboardInterrupt:
         print(Fore.RED + "\nProcess interrupted by user!")
-        save_partial_results(reflected_urls)
+        save_partial_results(reflected_urls_word, reflected_urls_symbol)
         return
 
     # Save the reflected URLs
-    if reflected_urls:
+    if reflected_urls_word:
         create_results_directory()
-        with open('results/reflectedUrl.txt', 'w') as outfile:
-            for reflected_url in reflected_urls:
+        with open('results/wordReflected.txt', 'w') as outfile:
+            for reflected_url in reflected_urls_word:
                 clean_url = reflected_url.replace(word_to_add, '')
                 outfile.write(clean_url + '\n')
-        print(Fore.GREEN + "There are URLs reflected. Check the 'results/reflectedUrl.txt' file.")
-    else:
-        print(Fore.RED + "No URLs were reflected.")
+        print(Fore.GREEN + "There are URLs with the word reflected. Check the 'results/wordReflected.txt' file.")
+
+    if reflected_urls_symbol:
+        create_results_directory()
+        with open('results/symbolReflected.txt', 'w') as outfile:
+            for reflected_url in reflected_urls_symbol:
+                clean_url = reflected_url.replace(word_to_add, '')
+                outfile.write(clean_url + '\n')
+        print(Fore.GREEN + "There are URLs with the symbol reflected. Check the 'results/symbolReflected.txt' file.")
 
     # Cleanup
     if os.path.exists('results/urlWithParam.txt'):
@@ -148,15 +160,18 @@ def main():
     input(Fore.CYAN + "\nPress Enter to exit...")
     clear_terminal()  # Clear terminal after finishing
 
-def save_partial_results(reflected_urls):
+def save_partial_results(reflected_urls_word, reflected_urls_symbol):
     """Save partially analyzed results if interrupted."""
     save = input(Fore.YELLOW + "Do you want to save partially analyzed results? (yes/no): ").strip().lower()
-    if save == 'yes' and reflected_urls:
+    if save == 'yes' and (reflected_urls_word or reflected_urls_symbol):
         create_results_directory()
-        with open('results/partial_reflectedUrl.txt', 'w') as file:
-            for url in reflected_urls:
+        with open('results/partial_wordReflected.txt', 'w') as file:
+            for url in reflected_urls_word:
                 file.write(url + '\n')
-        print(Fore.GREEN + "Partial results saved to 'results/partial_reflectedUrl.txt'.")
+        with open('results/partial_symbolReflected.txt', 'w') as file:
+            for url in reflected_urls_symbol:
+                file.write(url + '\n')
+        print(Fore.GREEN + "Partial results saved.")
     else:
         print(Fore.YELLOW + "No results saved.")
 
