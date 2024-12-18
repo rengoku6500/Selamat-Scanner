@@ -29,7 +29,7 @@ As a penetration tester, one of the biggest challenges when testing client or cu
    - Most XSS scanners use payloads like `<script>alert(1)</script>` to test for vulnerabilities, but this approach can trigger security defenses.
    - Selamat adopts a safer, smarter method: **detecting reflected user input**.
    - **How It Works:**
-     - The tool inserts the word **"RENGOKU"** into the input fields.
+     - The tool inserts the word **"RENGOKU<>"** into the input fields.
      - If this word is reflected back on the page, the tool will flag the URL.
 
 ## Advantages
