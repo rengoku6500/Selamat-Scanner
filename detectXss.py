@@ -3,6 +3,7 @@ import os
 import requests
 from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 from colorama import Fore, Style, init
+import re
 
 # Initialize colorama
 init(autoreset=True)
@@ -80,11 +81,30 @@ def check_reflected_word(url, word_to_check):
         print(Fore.RED + f"Error requesting URL: {url}, {e}")
     return False
 
+def scan_complex(url, word_to_check):
+    """Check if the word is inside <script> tags in the HTML content, without worrying about filtering."""
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36'}
+    
+    try:
+        response = requests.get(url, headers=headers)
+        # Look for the word inside <script> tags (even if filtered or not)
+        script_content = re.findall(r'<script.*?>(.*?)</script>', response.text, re.DOTALL)
+        
+        for script in script_content:
+            if word_to_check in script:
+                return True
+
+    except requests.RequestException as e:
+        print(Fore.RED + f"Error requesting URL: {url}, {e}")
+
+    return False
+
 def main():
     """Main function to run the script."""
     clear_terminal()  # Clear terminal before starting
     reflected_urls_word = []
     reflected_urls_symbol = []
+    reflected_urls_complex = []
 
     try:
         # Ask user if they want to use a custom file
@@ -129,11 +149,15 @@ def main():
 
             if check_reflected_word(modified_url, word_to_check_symbol):
                 reflected_urls_symbol.append(modified_url)
-                print(Fore.GREEN + f"Reflected URL (symbol): {modified_url}")
+                print(Fore.RED + f"Reflected URL (symbol): {modified_url}")
+
+            if scan_complex(modified_url, word_to_check_word):
+                reflected_urls_complex.append(modified_url)
+                print(Fore.YELLOW + f"Reflected URL (complex): {modified_url}")
 
     except KeyboardInterrupt:
         print(Fore.RED + "\nProcess interrupted by user!")
-        save_partial_results(reflected_urls_word, reflected_urls_symbol)
+        save_partial_results(reflected_urls_word, reflected_urls_symbol, reflected_urls_complex)
         return
 
     # Save the reflected URLs
@@ -151,7 +175,15 @@ def main():
             for reflected_url in reflected_urls_symbol:
                 clean_url = reflected_url.replace(word_to_add, '')
                 outfile.write(clean_url + '\n')
-        print(Fore.GREEN + "There are URLs with the symbol reflected. Check the 'results/symbolReflected.txt' file.")
+        print(Fore.RED + "There are URLs with the symbol reflected. Check the 'results/symbolReflected.txt' file.")
+
+    if reflected_urls_complex:
+        create_results_directory()
+        with open('results/complexReflected.txt', 'w') as outfile:
+            for reflected_url in reflected_urls_complex:
+                clean_url = reflected_url.replace(word_to_add, '')
+                outfile.write(clean_url + '\n')
+        print(Fore.YELLOW + "There are URLs with complex reflected (inside <script>). Check the 'results/complexReflected.txt' file.")
 
     # Cleanup
     if os.path.exists('results/urlWithParam.txt'):
@@ -160,16 +192,19 @@ def main():
     input(Fore.CYAN + "\nPress Enter to exit...")
     clear_terminal()  # Clear terminal after finishing
 
-def save_partial_results(reflected_urls_word, reflected_urls_symbol):
+def save_partial_results(reflected_urls_word, reflected_urls_symbol, reflected_urls_complex):
     """Save partially analyzed results if interrupted."""
     save = input(Fore.YELLOW + "Do you want to save partially analyzed results? (yes/no): ").strip().lower()
-    if save == 'yes' and (reflected_urls_word or reflected_urls_symbol):
+    if save == 'yes' and (reflected_urls_word or reflected_urls_symbol or reflected_urls_complex):
         create_results_directory()
         with open('results/partial_wordReflected.txt', 'w') as file:
             for url in reflected_urls_word:
                 file.write(url + '\n')
         with open('results/partial_symbolReflected.txt', 'w') as file:
             for url in reflected_urls_symbol:
+                file.write(url + '\n')
+        with open('results/partial_complexReflected.txt', 'w') as file:
+            for url in reflected_urls_complex:
                 file.write(url + '\n')
         print(Fore.GREEN + "Partial results saved.")
     else:
