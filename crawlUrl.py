@@ -30,13 +30,14 @@ def run_commands():
     urls = result.stdout.decode().splitlines()
 
     unique_urls = sorted(set(urls))
+    url_with_param = [url for url in unique_urls if '?' in url or '=' in url]
 
     # Ensure the 'results' directory exists
     if not os.path.exists("results"):
         os.makedirs("results")
 
     with open("results/url.txt", "w") as file:
-        for url in unique_urls:
+        for url in url_with_param:
             file.write(url + "\n")
 
     if os.path.exists("domains.txt"):
