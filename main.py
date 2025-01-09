@@ -2,6 +2,7 @@ import subprocess
 import sys
 import os
 from colorama import Fore, Back, Style, init
+import shutil  # New import to check for executable presence
 
 # Initialize colorama
 init(autoreset=True)
@@ -19,16 +20,15 @@ def check_and_install(package):
 # Function to check Waybackurls installation
 def check_waybackurls():
     """Check if Waybackurls is installed."""
-    try:
-        subprocess.run(["waybackurls", "--help"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-        print("waybackurls is already installed.")
-    except subprocess.CalledProcessError:
+    if shutil.which("waybackurls") is None:
         print("waybackurls is not installed. Please install it manually.")
         print("Follow these steps to install Go and waybackurls:\n")
         print("1. Install Go from https://golang.org/dl/ and add it to your PATH.")
         print("2. Run: go install github.com/tomnomnom/waybackurls@latest")
         print("After installing, please rerun this script.")
         sys.exit(1)
+    else:
+        print("waybackurls is already installed.")
 
 # Function to run individual script
 def run_script(script_name, description):
@@ -60,11 +60,6 @@ def main_menu():
     # Clear the screen after requirements check
     clear_screen()
 
- 
-  
-
-    
-
     # Main script execution menu with colored options
     while True:
         print("""
@@ -94,11 +89,10 @@ def main_menu():
 ⠀⠀⠀⠀⠐⣋⣭⣿⣿⣿⠏⣴⡇⢀⡇⣎⣠⠞⢻⣿⠄⠀⠀⠀⠀⠹⣶⣿⣿⡿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⢰⣿⣾⣿⣇⣰⢹⠀⡄⠀
 ⠀⠀⠀⣠⣿⡿⢿⣿⣿⣏⣼⣿⡇⢸⡷⠋⠀⢀⣤⣿⡄⠀⠀⠀⠀⣿⣏⣹⣿⢛⣻⣿⣿⣿⣿⣿⣿⣿⣿⣴⣿⣿⣿⣿⣿⣿⣿⠀⠙⠆
 
-        """)
+         """)
         print(Fore.YELLOW + "\n" + "-" * 50)
         print(Fore.CYAN + "    made by rengoku6500!")
-        print("""
-[!] legal disclaimer: Usage of this script for attacking targets without prior mutual consent is illegal. It is the end user's responsibility to obey all applicable local, state and federal laws. Developers assume no liability and are not responsible for any misuse or damage caused by this program
+        print("""[!] legal disclaimer: Usage of this script for attacking targets without prior mutual consent is illegal. It is the end user's responsibility to obey all applicable local, state and federal laws. Developers assume no liability and are not responsible for any misuse or damage caused by this program
         """)
         print(Fore.YELLOW + "-" * 50)
         print(Fore.MAGENTA + "\nMain Menu:")
@@ -108,7 +102,7 @@ def main_menu():
         print(Fore.RED + "4. Exit")
 
         choice = input(Fore.GREEN + "Enter your choice (1-4): ").strip()
-        
+
         if choice == "1":
             run_script("crawlUrl.py", "Crawl Wayback URLs")
         elif choice == "2":
