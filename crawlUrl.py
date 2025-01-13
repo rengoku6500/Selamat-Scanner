@@ -1,5 +1,6 @@
 import subprocess
 import os
+from urllib.parse import urlparse, parse_qs, urlencode
 
 def clear_terminal():
     """Clear the terminal screen."""
@@ -18,6 +19,16 @@ def save_domains_to_file(domains):
             file.write(domain + "\n")
     print("Domains saved to domains.txt.")
 
+def normalize_url_keys(url):
+    """
+    Normalize URL by keeping only the path and parameter keys.
+    Ignores parameter values to compare URLs based on structure.
+    """
+    parsed_url = urlparse(url)
+    query_params = parse_qs(parsed_url.query)
+    normalized_query = sorted(query_params.keys())
+    return f"{parsed_url.scheme}://{parsed_url.netloc}{parsed_url.path}?{'&'.join(normalized_query)}"
+
 def run_commands():
     """Run WaybackURLs extraction and process the results."""
     print("Running Wayback URLs extraction...")
@@ -32,12 +43,21 @@ def run_commands():
     unique_urls = sorted(set(urls))
     url_with_param = [url for url in unique_urls if '?' in url or '=' in url]
 
+    # Deduplicate URLs based on normalized keys
+    seen = set()
+    filtered_urls = []
+    for url in url_with_param:
+        normalized = normalize_url_keys(url)
+        if normalized not in seen:
+            seen.add(normalized)
+            filtered_urls.append(url)
+
     # Ensure the 'results' directory exists
     if not os.path.exists("results"):
         os.makedirs("results")
 
     with open("results/url.txt", "w") as file:
-        for url in url_with_param:
+        for url in filtered_urls:
             file.write(url + "\n")
 
     if os.path.exists("domains.txt"):
