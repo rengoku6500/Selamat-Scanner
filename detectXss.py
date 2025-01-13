@@ -31,8 +31,31 @@ def save_domains_to_file(domains):
             file.write(domain + "\n")
     print(Fore.GREEN + "Domains saved to results/domains.txt.")
 
+def normalize_url_keys(url):
+    """
+    Normalize URL by keeping only the path and parameter keys.
+    Ignores parameter values to compare URLs based on structure.
+    """
+    parsed_url = urlparse(url)
+    query_params = parse_qs(parsed_url.query)
+    normalized_query = sorted(query_params.keys())
+    return f"{parsed_url.scheme}://{parsed_url.netloc}{parsed_url.path}?{'&'.join(normalized_query)}"
+
+def deduplicate_urls(urls):
+    """
+    Deduplicate URLs based on normalized form (path + sorted query parameter keys).
+    """
+    seen = set()
+    deduplicated = []
+    for url in urls:
+        normalized = normalize_url_keys(url)
+        if normalized not in seen:
+            seen.add(normalized)
+            deduplicated.append(url)
+    return deduplicated
+
 def run_commands():
-    """Run WaybackURLs extraction and process the results."""
+    """Run WaybackURLs extraction and process the results with deduplication."""
     print(Fore.CYAN + "Running Wayback URLs extraction and processing...")
 
     with open("results/domains.txt", "r") as file:
@@ -42,7 +65,8 @@ def run_commands():
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
     urls = result.stdout.decode().splitlines()
 
-    unique_urls = sorted(set(urls))
+    # Deduplicate URLs
+    unique_urls = deduplicate_urls(sorted(set(urls)))
     url_with_param = [url for url in unique_urls if '?' in url or '=' in url]
 
     create_results_directory()
@@ -54,7 +78,7 @@ def run_commands():
         os.remove("results/domains.txt")
 
     if os.path.exists("results/urlWithParam.txt"):
-        print(Fore.GREEN + f"Total {len(url_with_param)} URLs with parameters found.")
+        print(Fore.GREEN + f"Total {len(url_with_param)} unique URLs with parameters found.")
     else:
         print(Fore.RED + "No output saved to results/urlWithParam.txt.")
 
