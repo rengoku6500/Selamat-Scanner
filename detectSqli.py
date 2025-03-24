@@ -7,6 +7,33 @@ from colorama import init, Fore
 # Initialize colorama
 init(autoreset=True)
 
+HEADERS = {}
+
+def set_custom_headers():
+    """Prompt user for custom headers and store them in a global dictionary."""
+    global HEADERS
+    print(Fore.YELLOW + "\nEnter Cookie/A.bearer if (key:value), one per line. Press Enter to finish/Skip:")
+    
+    skipped = True  # Track if the user skips input
+    
+    while True:
+        header = input().strip()
+        if not header:  # Stop if input is empty (Enter key)
+            break
+        if ':' in header:
+            key, value = header.split(':', 1)
+            HEADERS[key.strip()] = value.strip()
+            skipped = False  # User entered at least one header
+        else:
+            print(Fore.RED + "Invalid format. Use key:value")
+    
+    if skipped:
+        print(Fore.YELLOW + "No cookies set. Skipping...")  # Message when user skips
+    else:
+        print(Fore.GREEN + "Cookies set! Nyum nyum.")  # Message when cookies are set
+
+
+
 def clear_terminal():
     """Clear the terminal screen."""
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -86,9 +113,8 @@ def analyze_urls(urls):
     pattern_b_urls = []
 
     try:
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)'
-        }
+        if not HEADERS:
+            HEADERS['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)'
 
         for url in urls:
             url = url.strip()
@@ -113,13 +139,13 @@ def analyze_urls(urls):
                         modified_params[param] = [value + "'" for value in params[param]]
                         description = "Single apostrophe"
                     elif variation == 2:
-                        modified_params[param] = [value + '\"' for value in params[param]]
+                        modified_params[param] = [value + '"' for value in params[param]]
                         description = "Double apostrophe"
 
                     modified_url = f"{parsed_url.scheme}://{parsed_url.netloc}{parsed_url.path}?{urlencode(modified_params, doseq=True)}"
 
                     try:
-                        response = requests.get(modified_url, headers=headers)
+                        response = requests.get(modified_url, headers=HEADERS)
                         content_length = len(response.content)
                         content_lengths.append(content_length)
                     except Exception as e:
@@ -129,26 +155,19 @@ def analyze_urls(urls):
                 if all(content_lengths):
                     first, second, third = content_lengths
                     if first != second and second == third:
-                        print(Fore.YELLOW + "\nVulnerability Detected [B]: 20% chance SQLI.")
+                        print(Fore.YELLOW + "\nPattern Detected [B]: ≤ 5% chance SQLI.")
                         pattern_a_urls.append(url)
                     elif first == third and first != second:
-                        print(Fore.RED + "\nVulnerability Detected [A]: 80% chance SQLI.")
+                        print(Fore.RED + "\nPattern Detected [A]: 80% chance SQLI.")
                         pattern_b_urls.append(url)
                     else:
                         print(Fore.GREEN + "\nNot Vulnerable: No matching pattern found.")
                 else:
                     print(Fore.YELLOW + "\nNot Vulnerable: Incomplete responses.")
-
+    
     except KeyboardInterrupt:
         print(Fore.RED + "\nProcess interrupted!")
-        save = input("Do you want to save the analyzed results so far? (yes/no): ").strip().lower()
-        if save == 'yes':
-            save_partial_results(pattern_a_urls, pattern_b_urls)
-            print(Fore.GREEN + "Partially analyzed results saved.")
-        else:
-            print(Fore.YELLOW + "Results not saved.")
-        return pattern_a_urls, pattern_b_urls
-
+    
     return pattern_a_urls, pattern_b_urls
 
 def save_partial_results(pattern_a_urls, pattern_b_urls):
@@ -163,6 +182,7 @@ def save_partial_results(pattern_a_urls, pattern_b_urls):
 def main():
     """Main function to orchestrate the script."""
     clear_terminal()  # Clear terminal before starting
+    set_custom_headers()
     
     try:
         # Ask user if they want to use a custom file
