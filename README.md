@@ -1,6 +1,7 @@
 # Selamat - Automated Vulnerability Scanner (No Harmful Payloads)
 
 ![Screenshot of the tool](main.png)
+![Screenshot of the tool](sqlInjection.png)
 ## Overview
 
 As a penetration tester, one of the biggest challenges when testing client or customer websites is ensuring that the vulnerability scanners do not cause any harm. Traditional scanners may use harmful payloads, or they could get blocked by Web Application Firewalls (WAFs) or other security mechanisms.
