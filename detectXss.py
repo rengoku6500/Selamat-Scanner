@@ -5,8 +5,10 @@ from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 from colorama import Fore, Style, init
 import re
 
+
 # Initialize colorama
 init(autoreset=True)
+HEADERS = {}  # Global variable to store headers
 
 def clear_terminal():
     """Clear the terminal screen."""
@@ -94,38 +96,59 @@ def modify_url(url, word_to_add):
     modified_url = parsed_url._replace(query=modified_query)
     return urlunparse(modified_url)
 
+
+def get_custom_headers():
+    global HEADERS  # Use global variable
+
+    HEADERS = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36'
+    }
+
+    add_custom = input("Do you want to add custom headers? (yes/no) Press Enter to Skip: ").strip().lower()
+
+    if add_custom == 'yes':
+        while True:
+            header_input = input("Enter header (format: Key: Value) or press Enter to stop: ").strip()
+            if not header_input:
+                break
+            if ": " in header_input:
+                key, value = header_input.split(": ", 1)
+                HEADERS[key.strip()] = value.strip()
+            else:
+                print("Invalid format! Use 'Key: Value' format.")
+
 def check_reflected_word(url, word_to_check):
-    """Send the GET request and check if the word is reflected in the response."""
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36'}
     try:
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=HEADERS)
         if word_to_check in response.text:
             return True
-    except requests.RequestException as e:
-        print(Fore.RED + f"Error requesting URL: {url}, {e}")
+    except requests.RequestException:
+        pass
     return False
 
+
 def scan_complex(url, word_to_check):
-    """Check if the word is inside <script> tags in the HTML content, without worrying about filtering."""
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36'}
-    
     try:
-        response = requests.get(url, headers=headers)
-        # Look for the word inside <script> tags (even if filtered or not)
+        response = requests.get(url, headers=HEADERS)
         script_content = re.findall(r'<script.*?>(.*?)</script>', response.text, re.DOTALL)
-        
         for script in script_content:
             if word_to_check in script:
                 return True
-
-    except requests.RequestException as e:
-        print(Fore.RED + f"Error requesting URL: {url}, {e}")
-
+    except requests.RequestException:
+        pass
     return False
+
+
+
+
 
 def main():
     """Main function to run the script."""
+      
+    global HEADERS  # Ensure we use the global HEADERS variable
+    
     clear_terminal()  # Clear terminal before starting
+    get_custom_headers()  # Ask for headers once at the beginning
     reflected_urls_word = []
     reflected_urls_symbol = []
     reflected_urls_complex = []
