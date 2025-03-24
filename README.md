@@ -37,6 +37,7 @@ As a penetration tester, one of the biggest challenges when testing client or cu
 
 - **Very Hard to Detect by Firewalls:** By avoiding harmful payloads, this tool can bypass most web application firewalls (WAFs).
 - **Safe to Use:** The primary goal of this tool is to provide a safe scanning environment. It does not cause harm to the website being tested and avoids triggering security defenses.
+- **Authenticated Scan:** With this function it is possible to do whitebox assesment.
   
 ## Limitations
 
